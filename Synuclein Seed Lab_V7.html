@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Synuclein Seed Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: landscape lab bench. Full-width step tabs; each step is a narrow notes column beside a wide bench area. */
+:root{
+  --bg:#F3F6F6; --panel:#FFFFFF; --ink:#16232A; --muted:#55666E; --line:#D6DFE1; --soft:#EAF0F1;
+  --tht:#0C8FA3; --tht-soft:#D9F1F4; --tht-glow:#36D3E3;
+  --fibril:#6A4C9C; --fibril-soft:#ECE6F5;
+  --cut:#B7791F; --good:#1E7D4F; --good-soft:#E1F3E9; --bad:#B23A3A; --bad-soft:#F8E3E3;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px; --shadow:0 8px 24px rgba(20,40,50,.14);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1518; --panel:#152024; --ink:#E4ECEE; --muted:#9AAEB4; --line:#2A3A40; --soft:#1C2A2F;
+  --tht:#3CC2D3; --tht-soft:#123138; --tht-glow:#5FE6F2; --fibril:#B39BE0; --fibril-soft:#2A2340;
+  --cut:#E2A64B; --good:#5CC890; --good-soft:#15301F; --bad:#E77B7B; --bad-soft:#3A1B1B; --shadow:0 8px 24px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1518; --panel:#152024; --ink:#E4ECEE; --muted:#9AAEB4; --line:#2A3A40; --soft:#1C2A2F;
+  --tht:#3CC2D3; --tht-soft:#123138; --tht-glow:#5FE6F2; --fibril:#B39BE0; --fibril-soft:#2A2340;
+  --cut:#E2A64B; --good:#5CC890; --good-soft:#15301F; --bad:#E77B7B; --bad-soft:#3A1B1B; --shadow:0 8px 24px rgba(0,0,0,.5); color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:15px/1.55 var(--body);padding-inline:clamp(16px,2.5vw,32px);padding-block:18px 36px}
+.app{max-width:1440px;margin:0 auto;display:grid;gap:14px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font:800 clamp(24px,2.6vw,32px)/1 var(--display);margin:0;letter-spacing:-.01em}
+h1 span{color:var(--tht)}
+.kicker{font:500 12px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font:600 14px/1 var(--body);background:var(--tht);color:var(--panel)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+:is(.btn,.opt,.chip,.tab,.term,.seg button):focus-visible{outline:2px solid var(--tht);outline-offset:2px}
+nav.tabs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.tab{all:unset;cursor:pointer;display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:9px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);font:500 13px/1.25 var(--body);color:var(--muted);min-width:0}
+.tab .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11px var(--mono);box-shadow:inset 0 0 0 1.5px var(--line)}
+.tab[aria-current="step"]{background:var(--ink);color:var(--panel);box-shadow:none}
+.tab[aria-current="step"] .n{background:var(--tht);color:var(--panel);box-shadow:none}
+.tab.done .n{box-shadow:inset 0 0 0 1.5px var(--tht);color:var(--tht)}
+section.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,2vw,26px);display:grid;gap:16px}
+.shead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px}
+.shead .tag{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tht);margin:0 0 2px}
+.shead h2{font:800 clamp(20px,2vw,26px)/1.15 var(--display);margin:0;text-wrap:balance}
+.manual{font:500 12px var(--mono);color:var(--muted);padding:3px 9px;border-radius:99px;box-shadow:inset 0 0 0 1px var(--line);white-space:nowrap}
+.chain{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chain div{padding:6px 9px;border-radius:8px;background:var(--soft);font:500 12px/1.3 var(--body);color:var(--muted);display:flex;gap:6px;align-items:baseline;min-width:0}
+.chain div b{font:500 11px var(--mono)}
+.chain div.on{background:var(--fibril-soft);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--fibril)}
+.chain div.on b{color:var(--fibril)}
+.cols{display:grid;grid-template-columns:minmax(250px,300px) minmax(0,1fr);gap:22px;align-items:start}
+.side{display:grid;gap:12px;min-width:0}
+.work{display:grid;gap:14px;min-width:0}
+.short{border-radius:var(--r);background:var(--soft);padding:12px 14px}
+.short p{margin:0 0 4px;font:600 12px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.short ul{margin:0;padding-left:18px}
+.short li{margin:3px 0}
+.key{background:var(--tht-soft);border-radius:var(--r);padding:12px 14px}
+.key b{color:var(--tht)}
+.note{font-size:13px;color:var(--muted);margin:0}
+.box{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--panel);min-width:0}
+.box.soft{background:var(--soft);border-color:transparent}
+.box h3{font:600 15px/1.3 var(--body);margin:0 0 6px}
+.box p{margin:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.nextbar{display:flex;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.kick2{font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 6px}
+svg text{fill:var(--muted);font:12px var(--body)}
+svg .ink{fill:var(--ink)}
+svg .mo{fill:var(--muted);opacity:.55} svg .se{fill:var(--fibril)} svg .gl{fill:var(--tht-glow);opacity:.35} svg .ar{stroke:var(--muted);stroke-width:1.5;fill:none}
+/* start */
+.stage{display:grid;gap:4px;align-content:start}
+.stage .sn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--fibril-soft);color:var(--fibril);font:600 13px var(--mono)}
+.stage b{font-size:14.5px}
+.stage span{font-size:13.5px;color:var(--muted)}
+.faq h3{color:var(--fibril)}
+.map{display:grid;gap:4px;align-content:start}
+.map b{font:600 13px var(--body)} .map span{font-size:13px;color:var(--muted)} .map i{font:500 12px var(--mono);color:var(--tht);font-style:normal}
+/* step 1 */
+input[type=range]{width:100%;accent-color:var(--tht)}
+.neurons{display:grid;grid-template-columns:repeat(20,1fr);gap:4px}
+.neurons i{aspect-ratio:1;border-radius:50%;background:var(--tht);transition:background .4s,opacity .4s}
+.neurons i.lost{background:var(--line);opacity:.6}
+.stat{font:800 40px/1 var(--display)}
+.pill{display:inline-block;font:600 12px var(--body);padding:3px 9px;border-radius:99px}
+.pill.on{background:var(--bad-soft);color:var(--bad)} .pill.off{background:var(--good-soft);color:var(--good)}
+/* step 2 */
+canvas{width:100%;height:auto;display:block;border-radius:var(--r);background:var(--soft)}
+.seg{display:inline-flex;border-radius:8px;box-shadow:inset 0 0 0 1.5px var(--line);overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:8px 12px;font:600 13px var(--body);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.simgrid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:start}
+.predict{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:center;border:1.5px dashed var(--tht);border-radius:var(--r);padding:10px 12px}
+.predict p{margin:0;font-weight:600;font-size:14px}
+.predict .opts{display:flex;flex-wrap:wrap;gap:6px}
+.predict .pfb{grid-column:1/-1}
+/* step 3 */
+.plate{display:grid;grid-template-columns:auto repeat(6,minmax(36px,56px));gap:8px;align-items:center}
+.plate .h{font:500 12px var(--mono);color:var(--muted);text-align:center}
+.well{aspect-ratio:1;border-radius:50%;border:1.5px solid var(--line);background:var(--panel);position:relative}
+.well.full::after{content:"";position:absolute;inset:14%;border-radius:50%;background:var(--tht-glow);box-shadow:0 0 12px var(--tht-glow);opacity:var(--o,0);transition:opacity .5s}
+.well.tht{box-shadow:0 0 0 3px var(--tht-soft)}
+.samples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.chip{all:unset;cursor:pointer;border-radius:8px;padding:7px 10px;box-shadow:inset 0 0 0 1.5px var(--line);font:500 13px var(--body);display:flex;justify-content:space-between;gap:6px}
+.chip.done{background:var(--soft);color:var(--muted)}
+.chip .s{font:500 11px var(--mono);color:var(--tht)}
+.bench{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start}
+.tablewrap{overflow-x:auto}
+.resgrid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(220px,1fr);gap:14px;align-items:start}
+td{white-space:nowrap}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font:600 11.5px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+td.hid{color:transparent} td.pos{color:var(--bad);font-weight:600} td.neg{color:var(--good);font-weight:600}
+/* step 4 */
+.pt{display:grid;gap:8px;align-content:start}
+.bar{height:10px;border-radius:6px;background:var(--soft);position:relative}
+.bar b{position:absolute;inset:0 auto 0 0;border-radius:6px;background:var(--fibril)}
+.bar i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--cut)}
+.q p{margin:0 0 5px;font-weight:600;font-size:14px}
+.opts{display:grid;gap:5px}
+.opt{all:unset;cursor:pointer;padding:7px 11px;border-radius:8px;box-shadow:inset 0 0 0 1.5px var(--line);font-size:13.5px;line-height:1.35}
+.opt.pick{background:var(--tht-soft);box-shadow:inset 0 0 0 1.5px var(--tht)}
+.opt.right{background:var(--good-soft);box-shadow:inset 0 0 0 1.5px var(--good)}
+.opt.wrong{background:var(--bad-soft);box-shadow:inset 0 0 0 1.5px var(--bad)}
+.fb{font-size:13px;margin-top:5px;padding:7px 10px;border-radius:8px;background:var(--soft)}
+/* step 5/6 */
+select{font:500 14px var(--body);padding:7px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);width:100%}
+.rank label{display:grid;gap:4px;font-size:13.5px;font-weight:600}
+.badge{display:inline-block;margin-top:6px;font:600 12px var(--body);padding:3px 9px;border-radius:99px;background:var(--fibril-soft);color:var(--fibril)}
+.badge.sym{background:var(--tht-soft);color:var(--tht)}
+.toggles{display:grid;gap:6px}
+.toggles label{display:flex;gap:8px;align-items:center;font-size:14px;padding:7px 10px;border-radius:8px;box-shadow:inset 0 0 0 1.5px var(--line);cursor:pointer}
+.score{font:800 44px/1 var(--display)}
+/* glossary */
+.term{all:unset;cursor:help;border-bottom:1.5px dotted var(--tht)}
+.term:hover,.term[aria-expanded="true"]{background:var(--tht-soft);border-radius:3px}
+#pop{position:absolute;z-index:20;max-width:300px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.45;box-shadow:var(--shadow)}
+#pop b{display:block;margin-bottom:2px;color:var(--tht)}
+footer{color:var(--muted);font-size:12.5px}
+@media (max-width:1100px){ nav.tabs{grid-template-columns:repeat(4,minmax(0,1fr))} .g5{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (max-width:900px){
+  .cols,.simgrid,.bench,.resgrid{grid-template-columns:1fr}
+  .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  nav.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g2,.g3,.g4,.g5,.samples{grid-template-columns:1fr} .chain{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .predict{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><h1>Synuclein <span>Seed</span> Lab</h1><p class="kicker">MFAC1526 · Practical 13 · Pre-lab explorer</p></div>
+    <button class="btn ghost" type="button" id="theme" aria-label="Switch colour theme"></button>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Steps"></nav>
+  <main id="main"></main>
+  <footer>Simulation for MFAC1526 Practical 13 (Translational Pharmacology for Neurodegenerative Disease). No real patient data. Drug examples are investigational, not approved treatments. Tap any underlined word for a definition.</footer>
+</div>
+
+<script>
+(() => {
+const F = 250000, CUT = 50000;
+const STEPS = [
+  {id:'start', t:'Start here'}, {id:'late', t:'Why diagnosis is late'}, {id:'assay', t:'How the seed test works'},
+  {id:'plate', t:'Run your plate'}, {id:'patients', t:'Read the patients'}, {id:'drugs', t:'Screen the drugs'},
+  {id:'dm', t:'Symptoms vs disease'}, {id:'quiz', t:'Check yourself'},
+];
+const store = { get(k,d){try{const v=localStorage.getItem('ssl3_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}}, set(k,v){try{localStorage.setItem('ssl3_'+k,JSON.stringify(v))}catch(e){}} };
+let cur = Math.min(Math.max(store.get('step',0),0),STEPS.length-1);
+const visited = new Set(store.get('visited',[0]));
+const root=document.documentElement;
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const $ = (s,el=document) => el.querySelector(s);
+const h = html => { const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild; };
+let seed = 1526; const rnd = () => (seed = (seed*16807)%2147483647)/2147483647;
+const gauss = () => { let u=0,v=0; while(!u)u=rnd(); while(!v)v=rnd(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+
+/* ---------- theme toggle ---------- */
+const SUN='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=> root.dataset.theme ? root.dataset.theme==='dark' : mq.matches;
+function paintThemeBtn(){ const b=$('#theme'); b.innerHTML=isDark()?`${SUN}Light mode`:`${MOON}Dark mode`; }
+const saved=store.get('theme',null); if(saved) root.dataset.theme=saved;
+$('#theme').onclick=()=>{ const next=isDark()?'light':'dark'; root.dataset.theme=next; store.set('theme',next); paintThemeBtn(); if(STEPS[cur].id==='assay' && redrawSim) redrawSim(); };
+mq.addEventListener?.('change',()=>{ paintThemeBtn(); if(STEPS[cur].id==='assay' && redrawSim) redrawSim(); });
+paintThemeBtn();
+
+/* ---------- navigation ---------- */
+function renderTabs(){
+  const nav=$('#tabs'); nav.innerHTML='';
+  STEPS.forEach((s,i)=>{ const b=document.createElement('button'); b.type='button'; b.className='tab';
+    b.innerHTML=`<span class="n">${i===0?'•':i}</span><span>${s.t}</span>`;
+    if(i===cur) b.setAttribute('aria-current','step'); else if(visited.has(i)) b.classList.add('done');
+    b.onclick=()=>go(i); nav.appendChild(b); });
+}
+function rerender(){ stopSim(); renderTabs(); renderStep(); }
+function go(i){ stopSim(); cur=i; visited.add(i); store.set('step',i); store.set('visited',[...visited]); renderTabs(); renderStep();
+  $('#tabs').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
+const nextbar=()=>`<div class="nextbar">${cur>0?`<button class="btn ghost" type="button" data-go="${cur-1}">← ${STEPS[cur-1].t}</button>`:'<span></span>'}${cur<STEPS.length-1?`<button class="btn" type="button" data-go="${cur+1}">Next: ${STEPS[cur+1].t} →</button>`:''}</div>`;
+
+const CHAIN=['α-Synuclein misfolds','Seeds spread and clump','Dopamine neurons die','Symptoms appear','Treatment'];
+const META={
+  late:{tag:'Step 1 · Activity 1',m:'Manual: Activity 1',c:[3,4],s:['Clumping and neuron loss start years before symptoms.','Movement signs appear only once more than half the dopamine neurons are gone.','So diagnosis comes late. An early test could open a window to act.']},
+  assay:{tag:'Step 2 · The science',m:'Manual: background, Figure 1',c:[1,2],s:['Seeds (misfolded α-synuclein) are harmful in the brain but useful in the test tube.','In the test, seeds convert normal protein and grow; shaking makes them multiply.','ThT glows on fibrils. Glow means seeds are present: yes or no, not severity.']},
+  plate:{tag:'Step 3 · Activity 2',m:'Manual: Activity 2, Table 1',c:[2],s:['80 µL sample + 20 µL ThT in duplicate wells.','Measure RFU and take the mean of each pair.','Check the controls, then compare each patient with the 50,000 RFU cut-off.']},
+  patients:{tag:'Step 4 · Activity 2',m:'Manual: Activity 2, learning point',c:[4],s:['The test tells you whether seeds are present.','The symptoms tell you the diagnosis and how advanced it is.','Treatment follows the clinical picture, not the RFU.']},
+  drugs:{tag:'Step 5 · Activity 3',m:'Manual: Activity 3, Table 2',c:[2,5],s:['Lower RFU than the vehicle means less clumping.','Rank X, Y and Z, then see what each drug is.','X and Y act on clumping; Z acts on symptoms.']},
+  dm:{tag:'Step 6 · Activity 4',m:'Manual: Activity 4, Q1–3 and Q7',c:[3,5],s:['Levodopa replaces dopamine; the disease carries on.','A disease-modifying drug would slow the disease itself.','Lowering a biomarker alone doesn’t prove that.']},
+  quiz:{tag:'Step 7 · Activity 4',m:'Manual: Activity 4',c:[1,2,3,4,5]},
+};
+function shell(id,title,side,work){
+  const M=META[id];
+  return h(`<section class="step" aria-labelledby="h-${id}">
+    <div class="shead"><div><p class="tag">${M.tag}</p><h2 id="h-${id}">${title}</h2></div><span class="manual">${M.m}</span></div>
+    <div class="chain" aria-label="Where this fits in the disease story">${CHAIN.map((t,i)=>`<div class="${M.c.includes(i+1)?'on':''}"><b>${i+1}</b>${t}</div>`).join('')}</div>
+    <div class="cols"><aside class="side">${M.s?`<div class="short"><p>In short</p><ul>${M.s.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}${side}</aside><div class="work">${work}</div></div>
+    ${nextbar()}</section>`);
+}
+
+/* ---------- glossary ---------- */
+const GLOSS=[
+  ['seed amplification assay','Seed amplification assay (SAA)','A test that grows tiny amounts of misfolded protein in the lab until there is enough to detect. RT-QuIC is one version.'],
+  ['positive control','Positive control','A sample known to contain fibrils. If it doesn’t glow, the assay has failed and no result can be trusted.'],
+  ['negative control','Negative control','A sample known to contain no fibrils. It should read about zero.'],
+  ['dopamine neurons','Dopamine neurons','Nerve cells deep in the brain (substantia nigra) that make dopamine, the chemical messenger needed for smooth, controlled movement.'],
+  ['REM sleep behaviour disorder','REM sleep behaviour disorder','Acting out dreams while asleep (shouting, punching, kicking). A strong early warning sign of α-synuclein diseases.'],
+  ['progressive supranuclear palsy','Progressive supranuclear palsy (PSP)','A different brain disease that can look like Parkinson’s, but is caused by clumps of another protein, tau.'],
+  ['vertical gaze palsy','Vertical gaze palsy','Difficulty moving the eyes up or down. A typical sign of PSP.'],
+  ['disease-modifying','Disease-modifying','A treatment that slows or stops the disease itself, not just its symptoms.'],
+  ['α-synuclein','α-Synuclein','A normal protein at nerve endings that helps release chemical messengers. In Parkinson’s disease it misfolds and clumps.'],
+  ['misfolded','Misfolded','Folded into the wrong 3D shape. A misfolded protein can’t do its job and tends to stick to others.'],
+  ['seeds','Seed','A small clump of misfolded α-synuclein. It makes normal α-synuclein copy its wrong shape and join on, so the clump grows.'],
+  ['seed','Seed','A small clump of misfolded α-synuclein. It makes normal α-synuclein copy its wrong shape and join on, so the clump grows.'],
+  ['fibrils','Fibril','A long, thread-like clump of misfolded protein, built from many molecules stacked together.'],
+  ['fibril','Fibril','A long, thread-like clump of misfolded protein, built from many molecules stacked together.'],
+  ['CSF','CSF (cerebrospinal fluid)','The clear fluid around the brain and spinal cord, sampled by lumbar puncture.'],
+  ['Thioflavin T','Thioflavin T (ThT)','A dye that glows (fluoresces) when it sticks to fibrils. More fibril, more glow.'],
+  ['ThT','Thioflavin T (ThT)','A dye that glows (fluoresces) when it sticks to fibrils. More fibril, more glow.'],
+  ['RFU','RFU','Relative fluorescence units: how bright the glow is. The number only means something compared with the controls on the same plate.'],
+  ['prodromal','Prodromal','The early phase before the main symptoms, when only subtle warning signs are present.'],
+  ['hyposmia','Hyposmia','A reduced sense of smell.'],
+  ['parkinsonism','Parkinsonism','The movement picture of slowness plus stiffness and/or tremor. Parkinson’s disease is the commonest cause, but not the only one.'],
+  ['bradykinesia','Bradykinesia','Slowness of movement, with movements getting smaller as they repeat.'],
+  ['rigidity','Rigidity','Stiffness of the limbs when someone else moves them.'],
+  ['PSP','PSP','Progressive supranuclear palsy: a Parkinson’s look-alike caused by clumps of tau, not α-synuclein.'],
+  ['tau','Tau','A different brain protein that clumps in diseases such as PSP and Alzheimer’s.'],
+  ['levodopa','Levodopa','A drug the brain converts into dopamine. Given with carbidopa, which stops it being broken down before it reaches the brain.'],
+  ['vehicle','Vehicle','The liquid the drugs are dissolved in, with no drug. It shows what happens with no treatment.'],
+  ['biomarker','Biomarker','Something measurable that signals a disease process. Here, α-synuclein seeding activity.'],
+  ['symptomatic','Symptomatic (treatment)','Eases symptoms without changing the underlying disease.'],
+  ['duplicate','Duplicate','The same sample measured in two wells, to check the result is reliable.'],
+  ['blank','Blank','A well with no sample, showing the background signal from the plate and dye.'],
+  ['cut-off','Cut-off','The positive/negative threshold. In this prac, 50,000 RFU.'],
+];
+function glossify(rootEl){
+  const SKIP='button,.opt,h1,h2,h3,.kicker,.kick2,.tag,.chain,svg,canvas,th,select,label,.manual,.short p,.stage b,.map b';
+  const used=new Set();
+  for(const [needle,title,def] of GLOSS){
+    if(used.has(title)) continue;
+    const re=new RegExp('(^|[^\\p{L}-])('+needle.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![\\p{L}-])', needle===needle.toUpperCase()?'u':'iu');
+    const walker=document.createTreeWalker(rootEl,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest(SKIP)||n.parentElement.closest('.term')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+    let n; while((n=walker.nextNode())){
+      const m=re.exec(n.nodeValue); if(!m) continue;
+      const start=m.index+m[1].length, word=m[2];
+      const after=n.splitText(start); after.nodeValue=after.nodeValue.slice(word.length);
+      const b=document.createElement('button'); b.type='button'; b.className='term'; b.textContent=word; b.dataset.title=title; b.dataset.def=def; b.setAttribute('aria-expanded','false');
+      n.parentNode.insertBefore(b,after); used.add(title); break;
+    }
+  }
+}
+const pop=document.createElement('div'); pop.id='pop'; pop.hidden=true; pop.setAttribute('role','status'); document.body.appendChild(pop);
+let popFor=null;
+function closePop(){ pop.hidden=true; if(popFor) popFor.setAttribute('aria-expanded','false'); popFor=null; }
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.term');
+  if(!t){ if(!e.target.closest('#pop')) closePop(); return; }
+  if(popFor===t){ closePop(); return; }
+  closePop(); popFor=t; t.setAttribute('aria-expanded','true');
+  pop.innerHTML='<b></b><span></span>'; pop.querySelector('b').textContent=t.dataset.title; pop.querySelector('span').textContent=t.dataset.def; pop.hidden=false;
+  const r=t.getBoundingClientRect(), pw=Math.min(300,innerWidth-32); pop.style.maxWidth=pw+'px';
+  pop.style.left=Math.max(16+scrollX,Math.min(r.left+scrollX,scrollX+innerWidth-pw-16))+'px'; pop.style.top=(r.bottom+scrollY+6)+'px';
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePop(); });
+
+function renderStep(){
+  closePop(); const m=$('#main'); m.innerHTML='';
+  const el={start,late,assay,plate,patients,drugs,dm,quiz}[STEPS[cur].id]();
+  m.appendChild(el); glossify(el);
+  m.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  if(STEPS[cur].id==='assay') initSim();
+}
+
+/* ---------- Start ---------- */
+function start(){
+  return h(`<section class="step" aria-labelledby="h-start">
+    <div class="shead"><div><p class="tag">Start here · 5 minutes</p><h2 id="h-start">Parkinson’s disease in five steps</h2></div><span class="manual">Manual: whole prac</span></div>
+    <div class="g5">
+      ${[['A protein misfolds','α-Synuclein, a normal nerve-ending protein, folds into the wrong shape.'],
+         ['The bad shape spreads','Each misfolded molecule is a seed: normal protein copies its shape and sticks on, forming fibrils.'],
+         ['Dopamine neurons die','Clumps build up in the neurons that control movement, and they slowly die.'],
+         ['Symptoms appear late','Movement problems show only once most of those neurons have gone.'],
+         ['Treatments act at different points','Levodopa replaces dopamine (step 4). Experimental drugs try to stop clumping (step 2).']]
+        .map((x,i)=>`<div class="box soft stage"><span class="sn">${i+1}</span><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}
+    </div>
+    <div>
+      <p class="kick2">Four questions this prac answers</p>
+      <div class="g4 faq">
+        <div class="box"><h3>Are seeds bad?</h3><p>In the brain, yes: they spread the disease. In the test tube we use that on purpose. Even a trace of seed in a patient’s sample will grow into something we can measure.</p></div>
+        <div class="box"><h3>How do they grow in the test?</h3><p>The patient’s CSF is mixed with lots of normal α-synuclein and shaken. Seeds convert it and lengthen; shaking snaps them into more seeds. No seeds, no growth.</p></div>
+        <div class="box"><h3>How do we see them?</h3><p>The dye ThT glows only when it sticks to fibrils. More fibril, more glow, read as RFU.</p></div>
+        <div class="box"><h3>What does a result mean?</h3><p>Above the cut-off means seeds are present (positive). It shows the disease process is there, not how far along it is.</p></div>
+      </div>
+    </div>
+    <div>
+      <p class="kick2">What you’ll do in the prac</p>
+      <div class="g5">
+        ${[['Activity 1 · 20 min','Why diagnosis is late','Step 1'],['Background · Figure 1','How the test and ThT work','Step 2'],['Activity 2 · 35 min','Test three patients (Table 1)','Steps 3–4'],['Activity 3 · 30 min','Test three drugs (Table 2)','Step 5'],['Activity 4 · 25 min','Symptoms vs disease','Steps 6–7']]
+          .map(x=>`<div class="box map"><b>${x[0]}</b><span>${x[1]}</span><i>${x[2]}</i></div>`).join('')}
+      </div>
+    </div>
+    ${nextbar()}</section>`);
+}
+
+/* ---------- Step 1 ---------- */
+function late(){
+  const f=shell('late','The damage starts years before the shaking',
+    `<div class="key"><b>Discuss:</b> if we could detect the clumps early, what could we do with that time? What can a lab test <i>not</i> tell a doctor?</div>`,
+    `<div class="g2">
+      <div class="box">
+        <label for="yr" class="kick2" style="display:block">Years since the first α-synuclein clumps</label>
+        <input id="yr" type="range" min="0" max="20" value="4" step="1">
+        <div class="row" style="justify-content:space-between;margin:6px 0 12px"><span class="mono" id="yrv"></span><span class="pill" id="mot"></span></div>
+        <div class="neurons" id="neu" aria-hidden="true"></div>
+        <p class="note" style="margin-top:8px">Each dot ≈ 1% of the dopamine neurons in the substantia nigra. Timeline illustrative.</p>
+      </div>
+      <div class="box soft">
+        <p class="kick2">Neurons remaining</p><div class="stat" id="pct"></div>
+        <p id="phase" style="margin:10px 0"></p>
+        <p class="note">Symptoms usually appear after 50–70% are lost. Earlier clues: loss of smell, constipation, acting out dreams.</p>
+      </div></div>`);
+  const yr=$('#yr',f), neu=$('#neu',f);
+  for(let i=0;i<100;i++) neu.appendChild(document.createElement('i'));
+  const upd=()=>{ const y=+yr.value, lost=Math.round(Math.min(85,85*Math.pow(y/20,1.35))), motor=lost>=55;
+    $('#yrv',f).textContent=`Year ${y}`; [...neu.children].forEach((d,i)=>d.classList.toggle('lost',i>=100-lost));
+    $('#pct',f).textContent=`${100-lost}%`; const m=$('#mot',f); m.textContent=motor?'Movement signs present':'No movement signs yet'; m.className='pill '+(motor?'on':'off');
+    $('#phase',f).innerHTML=lost<15?'<b>Silent phase.</b> Clumps form; the person feels well.':!motor?'<b>Prodromal phase.</b> Subtle non-motor clues only. Too early for a diagnosis.':'<b>Diagnosis.</b> Slowness, stiffness and tremor are visible, but most of the damage is done.'; };
+  yr.oninput=upd; upd(); return f;
+}
+
+/* ---------- Step 2 ---------- */
+let simState=null, raf=0, redrawSim=null;
+function stopSim(){ if(raf) cancelAnimationFrame(raf); raf=0; if(simState) simState.running=false; }
+function assay(){
+  return shell('assay','One bad seed recruits the rest',
+    `<div class="key"><b>Key idea:</b> the test asks one thing: <i>are seeds present?</i> A positive sample takes off; a negative one stays flat.</div>
+     <p class="note">In this prac, whey protein isolate (WPI) fibrils safely model α-synuclein fibrils and ThT detection. No human samples or α-synuclein are used.</p>`,
+    `<div class="box soft"><p class="kick2">How a seed grows in the test (like a sugar crystal growing in syrup)</p>
+      <div style="overflow-x:auto"><svg viewBox="0 0 700 140" style="min-width:540px;width:100%" role="img" aria-label="A seed meets normal protein, the protein copies the wrong shape and joins, shaking snaps the fibril into two seeds">
+        <g transform="translate(20,14)"><circle class="se" cx="40" cy="52" r="9"/><circle class="se" cx="58" cy="52" r="9"/><circle class="se" cx="76" cy="52" r="9"/><circle class="mo" cx="120" cy="28" r="8"/><circle class="mo" cx="130" cy="76" r="8"/><circle class="mo" cx="20" cy="92" r="8"/>
+          <text x="80" y="122" text-anchor="middle" class="ink" style="font-weight:600">1. Seed meets normal protein</text></g>
+        <path class="ar" d="M190 66 h30 m-8 -6 l8 6 l-8 6"/>
+        <g transform="translate(235,14)"><circle class="gl" cx="76" cy="52" r="44"/>${[22,40,58,76,94,112,130].map(x=>`<circle class="se" cx="${x}" cy="52" r="9"/>`).join('')}
+          <text x="76" y="122" text-anchor="middle" class="ink" style="font-weight:600">2. It copies the bad shape and joins</text></g>
+        <path class="ar" d="M405 66 h30 m-8 -6 l8 6 l-8 6"/>
+        <g transform="translate(450,14)"><circle class="gl" cx="40" cy="38" r="30"/><circle class="gl" cx="150" cy="68" r="30"/>${[22,40,58].map(x=>`<circle class="se" cx="${x}" cy="38" r="9"/>`).join('')}${[132,150,168].map(x=>`<circle class="se" cx="${x}" cy="68" r="9"/>`).join('')}
+          <text x="95" y="122" text-anchor="middle" class="ink" style="font-weight:600">3. Shaking snaps it: two seeds</text></g>
+      </svg></div>
+      <div class="legend"><span style="--c:var(--fibril)">Misfolded (seed/fibril)</span><span style="--c:var(--muted)">Normal α-synuclein</span><span style="--c:var(--tht-glow)">ThT glow</span><span style="--c:transparent">Repeats for hours: 1 → 2 → 4 → 8 seeds…</span></div></div>
+    <div class="predict" id="pred"><p>Predict: which sample will glow?</p><div class="opts" id="popts"></div><div class="pfb" id="pfb"></div></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Sample"><button type="button" id="sSeed" aria-pressed="true">CSF with seeds</button><button type="button" id="sNone" aria-pressed="false">CSF without seeds</button></div>
+      <button class="btn" type="button" id="play">▶ Run the assay</button><button class="btn ghost" type="button" id="reset">Reset</button>
+    </div>
+    <div class="simgrid">
+      <canvas id="cv" width="760" height="380" aria-label="Animation of normal α-synuclein being recruited into fibrils"></canvas>
+      <div class="box"><p class="kick2">ThT fluorescence over time</p><svg id="curve" viewBox="0 0 320 220" role="img" aria-label="Fluorescence curve"></svg>
+        <p class="note" id="phaseTxt" style="margin-top:4px"></p></div>
+    </div>`);
+}
+function initSim(){
+  const PRED=['Only CSF with seeds','Only CSF without seeds','Both'];
+  const ran=new Set(store.get('ran',[]).map(Boolean));
+  const paintPred=()=>{ const st=store.get('pred2',null), oc=$('#popts'), fb=$('#pfb'); oc.innerHTML='';
+    PRED.forEach((o,i)=>{ const b=document.createElement('button'); b.type='button'; b.className='opt'+(st===i?' pick':''); b.textContent=o; b.onclick=()=>{ store.set('pred2',i); paintPred(); }; oc.appendChild(b); });
+    fb.innerHTML = st===null ? '' : ran.size<2 ? '<div class="fb">Locked in. Run both samples to check.</div>' :
+      `<div class="fb">${st===0?'✓ ':'Not quite. '}Only the sample with seeds took off. With no seeds there is nothing to copy, so the normal protein stays normal.</div>`; };
+  paintPred();
+  const cv=$('#cv'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  const newFib=(x,y,n)=>({x,y,a:Math.random()*Math.PI,n});
+  const mk=seeded=>{ const s={t:0,seeded,running:false,mono:[],fib:[],hist:[]};
+    for(let i=0;i<190;i++) s.mono.push({x:Math.random()*W,y:Math.random()*H,vx:0,vy:0});
+    if(seeded){ s.fib.push(newFib(W*.35,H*.45,3)); s.fib.push(newFib(W*.65,H*.6,3)); } return s; };
+  const ends=f=>{const L=(f.n-1)*7/2;return [[f.x+Math.cos(f.a)*L,f.y+Math.sin(f.a)*L],[f.x-Math.cos(f.a)*L,f.y-Math.sin(f.a)*L]]};
+  simState=mk(true);
+  const setSeg=seeded=>{ $('#sSeed').setAttribute('aria-pressed',seeded); $('#sNone').setAttribute('aria-pressed',!seeded); stopSim(); simState=mk(seeded); $('#play').textContent='▶ Run the assay'; draw(); drawCurve(); };
+  $('#sSeed').onclick=()=>setSeg(true); $('#sNone').onclick=()=>setSeg(false); $('#reset').onclick=()=>setSeg(simState.seeded);
+  $('#play').onclick=()=>{ if(simState.hist.length>=520) setSeg(simState.seeded); if(simState.running){stopSim();$('#play').textContent='▶ Resume';} else {simState.running=true;$('#play').textContent='❚❚ Pause';loop();} };
+  function step(){ const s=simState; s.t++;
+    for(const m of s.mono){ m.vx=(m.vx+(Math.random()-.5)*.8)*.9; m.vy=(m.vy+(Math.random()-.5)*.8)*.9; m.x=(m.x+m.vx+W)%W; m.y=(m.y+m.vy+H)%H; }
+    for(const f of s.fib){ f.x+=(Math.random()-.5)*.6; f.y+=(Math.random()-.5)*.6;
+      for(const [ex,ey] of ends(f)){ for(let i=s.mono.length-1;i>=0;i--){ const m=s.mono[i]; if((m.x-ex)**2+(m.y-ey)**2<110){ s.mono.splice(i,1); f.n++; break; } } } }
+    if(s.t%90===0){ const add=[]; for(const f of s.fib){ if(f.n>=10){ const half=Math.floor(f.n/2); f.n-=half; add.push(newFib(f.x+20*Math.cos(f.a+1.2),f.y+20*Math.sin(f.a+1.2),half)); } } s.fib.push(...add); }
+    if(s.t%6===0) s.hist.push(s.fib.reduce((a,f)=>a+f.n,0)); }
+  function draw(){ const s=simState; ctx.clearRect(0,0,W,H);
+    const mono=css('--muted'), fib=css('--fibril'), glow=css('--tht-glow');
+    ctx.fillStyle=mono; ctx.globalAlpha=.55; for(const m of s.mono){ ctx.beginPath(); ctx.arc(m.x,m.y,3,0,6.283); ctx.fill(); } ctx.globalAlpha=1;
+    for(const f of s.fib){ const [[x1,y1],[x2,y2]]=ends(f);
+      ctx.save(); ctx.shadowColor=glow; ctx.shadowBlur=14; ctx.strokeStyle=glow; ctx.globalAlpha=.55; ctx.lineWidth=9; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+      ctx.fillStyle=fib; for(let k=0;k<f.n;k++){ const t=f.n===1?.5:k/(f.n-1); ctx.beginPath(); ctx.arc(x1+(x2-x1)*t,y1+(y2-y1)*t,3.6,0,6.283); ctx.fill(); } } }
+  function drawCurve(){ const s=simState, svg=$('#curve'); if(!svg) return;
+    const maxN=190, maxT=520, x0=36,y0=190,w=270,hg=170, last=s.hist.length?s.hist[s.hist.length-1]:0;
+    const pts=s.hist.map((v,i)=>`${x0+Math.min(i,maxT)/maxT*w},${y0-v/maxN*hg}`).join(' ');
+    svg.innerHTML=`<line x1="${x0}" y1="${y0}" x2="${x0+w}" y2="${y0}" stroke="var(--line)"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-hg}" stroke="var(--line)"/>
+      <text x="${x0+w/2}" y="212" text-anchor="middle">Time (hours of shaking)</text><text x="12" y="${y0-hg/2}" transform="rotate(-90 12 ${y0-hg/2})" text-anchor="middle">ThT signal</text>
+      <polyline points="${pts}" fill="none" stroke="var(--tht)" stroke-width="2.5" stroke-linejoin="round"/>${s.hist.length?`<circle cx="${x0+Math.min(s.hist.length-1,maxT)/maxT*w}" cy="${y0-last/maxN*hg}" r="4" fill="var(--tht)"/>`:''}`;
+    const fr=last/190, p=$('#phaseTxt');
+    p.textContent=!s.hist.length?'Press run. Watch for lag, growth and plateau.':!s.seeded?'No seeds: nothing to copy, so the signal stays flat. Negative.':fr<.12?'Lag phase: seeds recruit protein slowly.':fr<.75?'Growth phase: shaking makes more seeds, so growth speeds up.':'Plateau: the normal protein is used up. Positive.'; }
+  function loop(){ if(!simState.running) return; for(let k=0;k<4;k++) step(); draw(); drawCurve();
+    if(simState.hist.length>=300 && !ran.has(simState.seeded)){ ran.add(simState.seeded); store.set('ran',[...ran]); paintPred(); }
+    if(simState.hist.length>=520){ simState.running=false; $('#play').textContent='↻ Run again'; return; } raf=requestAnimationFrame(loop); }
+  redrawSim=()=>{ draw(); drawCurve(); };
+  draw(); drawCurve();
+}
+
+/* ---------- Step 3 ---------- */
+const S2=[{k:'BLANK',n:'Blank (QC)',A:0},{k:'NEG',n:'Negative control',A:0.012},{k:'POS',n:'Positive control',A:0.80},{k:'Pt A',n:'Patient A',A:0.11},{k:'Pt B',n:'Patient B',A:0.30},{k:'Pt C',n:'Patient C',A:1.00}];
+let plateState=null;
+function makePlate(){ seed=1526+Math.floor(Math.random()*1e5);
+  return S2.map(s=>({...s,sample:false,tht:false,raw:[0,1].map(()=>Math.max(0,Math.round((s.A*F*(1+0.035*gauss())+250*Math.abs(gauss()))/100)*100))})); }
+function plate(){
+  if(!plateState) plateState={wells:makePlate(),read:false,calc:0};
+  const P=plateState;
+  const f=shell('plate','Load the plate, measure, interpret',
+    `<div class="box soft"><h3>Forward pipetting</h3><ol style="margin:0;padding-left:18px;font-size:13.5px">
+      <li>Press to the <b>first stop</b>, then dip the tip.</li><li>Release slowly to draw up.</li><li>Tip on the well wall, press to the <b>first stop</b>.</li><li>Carry on to the <b>second stop</b> to blow out.</li></ol>
+      <p class="note" style="margin-top:6px">New tip for every sample.</p></div>`,
+    `<div class="bench">
+      <div><div class="plate" id="pl" aria-label="Rows A and B of your plate"></div></div>
+      <div style="display:grid;gap:10px;min-width:0"><p class="note" style="font-size:14px;color:var(--ink)">Click each sample twice: once to add <b class="mono">80 µL</b> sample to both wells, again to add <b class="mono">20 µL</b> ThT. Then measure.</p>
+        <div class="samples" id="sm"></div>
+        <div class="row"><button class="btn" type="button" id="read">Measure fluorescence</button><button class="btn ghost" type="button" id="redo">Start again</button></div></div>
+    </div>
+    <div id="res"></div>`);
+  const pl=$('#pl',f), sm=$('#sm',f);
+  function drawPlate(){
+    pl.innerHTML='<span></span>'+[1,2,3,4,5,6].map(c=>`<span class="h">${c}</span>`).join('');
+    ['A','B'].forEach((r,ri)=>{ pl.insertAdjacentHTML('beforeend',`<span class="h">${r}</span>`);
+      P.wells.forEach(w=>{ const o=P.read?Math.min(.95,.05+w.raw[ri]/250000*.9):(w.sample?.06:0); pl.insertAdjacentHTML('beforeend',`<span class="well ${w.sample?'full':''} ${w.tht?'tht':''}" style="--o:${o}" title="${w.n}"></span>`); }); });
+    sm.innerHTML='';
+    P.wells.forEach(w=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'+(w.tht?' done':'');
+      b.innerHTML=`<span>${w.n}</span><span class="s">${!w.sample?'+80 µL':!w.tht?'+20 µL ThT':'✓'}</span>`;
+      b.onclick=()=>{ if(!w.sample) w.sample=true; else if(!w.tht) w.tht=true; drawPlate(); }; sm.appendChild(b); });
+    const ready=P.wells.every(w=>w.tht), rb=$('#read',f); rb.disabled=!ready||P.read; rb.textContent=P.read?'Plate measured':'Measure fluorescence'; rb.title=ready?'':'Add sample and ThT to every well first';
+  }
+  $('#read',f).onclick=()=>{ if(P.wells.every(w=>w.tht)){ P.read=true; drawPlate(); drawRes(); glossify($('#res',f)); } };
+  $('#redo',f).onclick=()=>{ plateState=null; rerender(); };
+  function drawRes(){
+    const r=$('#res',f); if(!P.read){ r.innerHTML=''; return; }
+    const c=P.calc, fmt=v=>v<1000?'~0':Math.round(v).toLocaleString('en-AU'), interp={BLANK:'Background',NEG:'Assay negative',POS:'Assay positive'};
+    const rows=P.wells.map(w=>{ const mean=(w.raw[0]+w.raw[1])/2; return {w,mean,pos:mean>=CUT}; });
+    r.innerHTML=`<div class="resgrid"><div class="tablewrap"><table><thead><tr><th>Sample</th><th>Well 1 / well 2 (RFU)</th><th>Mean RFU</th><th>Interpretation</th></tr></thead><tbody>
+      ${rows.map(x=>`<tr><td>${x.w.n}</td><td class="mono">${x.w.raw[0].toLocaleString('en-AU')} / ${x.w.raw[1].toLocaleString('en-AU')}</td><td class="mono ${c<1?'hid':''}">${fmt(x.mean)}</td>
+        <td class="${c<2?'hid':interp[x.w.k]?'':x.pos?'pos':'neg'}">${interp[x.w.k]||(x.pos?'Positive seeding signal':'Low or negative')}</td></tr>`).join('')}</tbody></table></div>
+      <div style="display:grid;gap:10px">${c<2?`<div class="row"><button class="btn" type="button" id="calc">${['1. Calculate the mean RFU','2. Interpret against the controls'][c]}</button></div>`:''}
+        ${c>=2?`<div class="key"><b>Controls first:</b> blank and negative ≈ 0, positive ≈ 200,000 RFU, so the assay worked. Then each patient vs the 50,000 RFU cut-off: B and C are positive, A is not.</div>`:'<p class="note">Work through the buttons to fill in Table 1.</p>'}</div></div>`;
+    const cb=$('#calc',r); if(cb) cb.onclick=()=>{ P.calc++; drawRes(); glossify(r); };
+  }
+  drawPlate(); drawRes(); return f;
+}
+
+/* ---------- Step 4 ---------- */
+const DX=['Parkinson’s disease','Progressive supranuclear palsy (a tau disease)','Early α-synuclein disease, no movement signs yet'];
+const PTS=[
+  {k:'A',A:.11,sx:['Early falls','Symmetrical rigidity','Vertical gaze palsy'],q1:false,dx:1,
+   dxf:'Early falls and trouble looking up or down point to PSP, a tau disease. A negative α-synuclein test fits.',
+   tx:['Supportive care (falls prevention, physio, speech); a levodopa trial may help a little','High-dose levodopa, as for Parkinson’s','An anti-α-synuclein antibody'],ta:0,
+   txf:'No drug modifies PSP and levodopa usually helps little. An anti-synuclein drug targets the wrong protein.'},
+  {k:'B',A:.30,sx:['Loss of smell (hyposmia)','Acts out dreams (REM sleep behaviour disorder)','No parkinsonism'],q1:true,dx:2,
+   dxf:'Classic early clues. The positive test shows seeds are already present before any movement problems.',
+   tx:['Start levodopa now to prevent Parkinson’s','No dopamine drug yet: treat the sleep disorder, monitor, consider trials','Reassure: a positive test means nothing without symptoms'],ta:1,
+   txf:'Levodopa treats symptoms and doesn’t slow the disease, and B has none to treat. The result still matters: monitor and discuss trials.'},
+  {k:'C',A:1,sx:['Bradykinesia','Rigidity','Asymmetric resting tremor'],q1:true,dx:0,
+   dxf:'Slowness, stiffness and a one-sided rest tremor: the classic picture of Parkinson’s disease.',
+   tx:['Wait until the RFU rises further','Carbidopa on its own','Levodopa/carbidopa once symptoms affect daily life'],ta:2,
+   txf:'Levodopa is the most effective symptomatic drug; carbidopa stops it breaking down before it reaches the brain. Watch for nausea, dizziness on standing and, later, dyskinesia.'},
+];
+function patients(){
+  const answers=store.get('pts',{});
+  const f=shell('patients','The test says yes or no. The patient tells you the rest.',
+    `<div class="key"><b>Is Patient B’s disease milder than C’s?</b> No. The test shows seeds are present, not how much damage is done. B has no movement signs and C has a full motor syndrome: that comes from the clinic, not the RFU.</div>
+     <p class="note">Amber line on each bar = 50,000 RFU cut-off.</p>`,
+    `<div class="g3" id="pc"></div>`);
+  const pc=$('#pc',f);
+  PTS.forEach(p=>{
+    const st=answers[p.k]||{}, box=document.createElement('div'); box.className='box pt';
+    box.innerHTML=`<h3>Patient ${p.k}</h3><ul style="margin:0;padding-left:18px;font-size:14px">${p.sx.map(s=>`<li>${s}</li>`).join('')}</ul>
+      <div><div class="row" style="justify-content:space-between;font-size:12.5px"><span class="muted">Mean RFU</span><span class="mono">${(p.A*F).toLocaleString('en-AU')}</span></div>
+      <div class="bar" aria-hidden="true"><b style="width:${p.A/1.1*100}%"></b><i style="left:${CUT/F/1.1*100}%"></i></div></div>`;
+    [['q1','Positive seeding signal?',['Yes','No'],p.q1?0:1,p.q1?'Above 50,000 RFU: seeds present.':'Below 50,000 RFU: no seeding signal.'],
+     ['dx','Best fit?',DX,p.dx,p.dxf],['tx','Treatment plan?',p.tx,p.ta,p.txf]].forEach(([key,qt,opts,a,fb])=>{
+      const q=document.createElement('div'); q.className='q'; q.innerHTML=`<p>${qt}</p><div class="opts" style="${key==='q1'?'grid-template-columns:1fr 1fr':''}"></div>`;
+      const oc=q.querySelector('.opts');
+      opts.forEach((o,i)=>{ const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=o;
+        if(st[key]!==undefined){ if(i===a) b.classList.add('right'); else if(i===st[key]) b.classList.add('wrong'); }
+        b.onclick=()=>{ st[key]=i; answers[p.k]=st; store.set('pts',answers); const y=scrollY; rerender(); scrollTo(0,y); }; oc.appendChild(b); });
+      if(st[key]!==undefined) q.insertAdjacentHTML('beforeend',`<div class="fb">${st[key]===a?'✓ ':'Not quite. '}${fb}</div>`);
+      box.appendChild(q); });
+    pc.appendChild(box);
+  });
+  return f;
+}
+
+/* ---------- Step 5 ---------- */
+const S3=[{n:'Vehicle',A:.62,c:1},{n:'Agg. control',A:.72,c:1},{n:'Drug X',A:.13},{n:'Drug Y',A:.31},{n:'Drug Z',A:.59}];
+function drugs(){
+  const rk=store.get('rank',{X:'',Y:'',Z:''}), shown=store.get('reveal',false);
+  const f=shell('drugs','Which drug stops the clumping?',
+    `<div class="box soft"><h3>The set-up</h3><p style="font-size:14px">You’re testing the assay with known drugs. α-Synuclein was incubated with each one for 72 h. Less aggregate left means lower RFU.</p></div>`,
+    `<div class="g2" style="align-items:start">
+      <div class="box"><svg id="dbar" viewBox="0 0 420 240" role="img" aria-label="Mean RFU for the five samples"></svg></div>
+      <div class="box soft rank"><h3>Rank by inhibition (vs the vehicle)</h3>
+        <div class="g3">${['X','Y','Z'].map(d=>`<label>Drug ${d}<select id="r${d}" data-d="${d}"><option value="">Choose…</option>${['1st: strongest','2nd','3rd: weakest'].map((t,i)=>`<option value="${i+1}" ${rk[d]===String(i+1)?'selected':''}>${t}</option>`).join('')}</select></label>`).join('')}</div>
+        <div class="row" style="margin-top:10px"><button class="btn" type="button" id="chk">Check and reveal</button></div><div id="rfb"></div></div>
+    </div><div id="rev"></div>`);
+  const svg=$('#dbar',f), x0=56,y0=196,w=350,hh=170,max=.8;
+  svg.innerHTML=[0,50000,100000,150000,200000].map(v=>{const y=y0-v/F/max*hh;return `<line x1="${x0}" x2="${x0+w}" y1="${y}" y2="${y}" stroke="var(--line)" ${v?'stroke-dasharray="2 4"':''}/><text x="${x0-8}" y="${y+4}" text-anchor="end">${v/1000}k</text>`}).join('')+
+    S3.map((s,i)=>{const bw=46,gap=w/S3.length,x=x0+gap*i+(gap-bw)/2,bh=s.A/max*hh;
+      return `<rect x="${x}" y="${y0-bh}" width="${bw}" height="${bh}" rx="4" fill="${s.c?'var(--muted)':'var(--fibril)'}" opacity="${s.c?.5:1}"/><text x="${x+bw/2}" y="${y0-bh-6}" text-anchor="middle" class="ink mono" style="font-size:11px">${Math.round(s.A*F/1000)}k</text><text x="${x+bw/2}" y="${y0+16}" text-anchor="middle">${s.n}</text>`}).join('')+
+    `<text x="14" y="${y0-hh/2}" transform="rotate(-90 14 ${y0-hh/2})" text-anchor="middle">Mean RFU</text>`;
+  f.querySelectorAll('select').forEach(s=>s.onchange=()=>{ rk[s.dataset.d]=s.value; store.set('rank',rk); });
+  const showRev=()=>{ const ok=rk.X==='1'&&rk.Y==='2'&&rk.Z==='3';
+    $('#rfb',f).innerHTML=`<div class="fb">${ok?'✓ ':'Not quite. '}X is lowest (32,500), Y partial (77,500), Z barely differs from the vehicle (147,500 vs 155,000).</div>`;
+    $('#rev',f).innerHTML=`<div class="g3">
+      <div class="box"><h3>X · Aggregation inhibitor</h3><p style="font-size:14px">Experimental small molecule that blocks clumping (e.g. emrusolmin).</p><span class="badge">Potentially disease-modifying</span></div>
+      <div class="box"><h3>Y · Anti-α-synuclein antibody</h3><p style="font-size:14px">Experimental immunotherapy against aggregated α-synuclein (e.g. prasinezumab).</p><span class="badge">Potentially disease-modifying</span></div>
+      <div class="box"><h3>Z · Levodopa / carbidopa</h3><p style="font-size:14px">Replaces dopamine. Patients move better; the clumping is untouched.</p><span class="badge sym">Symptomatic</span></div></div>`; glossify($('#rev',f)); };
+  $('#chk',f).onclick=()=>{ if(!rk.X||!rk.Y||!rk.Z){ $('#rfb',f).innerHTML='<div class="fb">Rank all three drugs first.</div>'; return; } store.set('reveal',true); showRev(); };
+  if(shown) showRev(); return f;
+}
+
+/* ---------- Step 6 ---------- */
+function dm(){
+  const on=store.get('dm',{none:true,levo:true,dmt:false});
+  const f=shell('dm','Topping up the oil vs fixing the leak',
+    `<div class="toggles">
+      <label><input type="checkbox" id="tn" ${on.none?'checked':''}><span>No treatment</span></label>
+      <label><input type="checkbox" id="tl" ${on.levo?'checked':''}><span>Levodopa (tops up the oil)</span></label>
+      <label><input type="checkbox" id="td" ${on.dmt?'checked':''}><span>Aggregation drug, <i>if it works</i> (fixes the leak)</span></label></div>
+     <div class="key"><b>Key idea:</b> a lower biomarker shows the drug hits its target. Calling it disease-modifying needs trials showing slower progression.</div>`,
+    `<div class="g2">
+      <div class="box"><p class="kick2">How well the person moves</p><svg id="g1" viewBox="0 0 360 230" role="img" aria-label="Movement over ten years"></svg></div>
+      <div class="box"><p class="kick2">Aggregation biomarker</p><svg id="g2" viewBox="0 0 360 230" role="img" aria-label="Aggregation over ten years"></svg></div>
+    </div><p class="note">Illustrative curves, not trial data. Right panel: levodopa (dashed) lies on top of no treatment, because it doesn’t change aggregation.</p>`);
+  const series={none:{c:'var(--muted)',lab:'No treatment',mv:t=>100-7.5*t,ag:t=>20+7*t},
+    levo:{c:'var(--tht)',lab:'Levodopa',mv:t=>100-7.5*t+(t<1?0:Math.min(1,(t-1)/.5)*Math.max(0,24-1.8*(t-1))),ag:t=>20+7*t},
+    dmt:{c:'var(--fibril)',lab:'Aggregation drug',mv:t=>100-7.5*Math.min(t,1)-3.5*Math.max(0,t-1),ag:t=>t<1?20+7*t:27+1.5*(t-1)}};
+  function chart(id,key,yl){
+    const svg=$(id,f), x0=44,y0=190,w=296,hh=160;
+    let s=`<line x1="${x0}" y1="${y0}" x2="${x0+w}" y2="${y0}" stroke="var(--line)"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-hh}" stroke="var(--line)"/>
+      ${[0,2,4,6,8,10].map(t=>`<text x="${x0+t/10*w}" y="${y0+16}" text-anchor="middle">${t}</text>`).join('')}
+      <text x="${x0+w/2}" y="224" text-anchor="middle">Years after diagnosis</text><text x="14" y="${y0-hh/2}" transform="rotate(-90 14 ${y0-hh/2})" text-anchor="middle">${yl}</text>
+      <line x1="${x0+.1*w}" x2="${x0+.1*w}" y1="${y0}" y2="${y0-hh}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${x0+.1*w+4}" y="${y0-6}" style="font-size:11px">treatment starts</text>`;
+    const leg=[];
+    Object.entries(series).forEach(([k,se])=>{ if(!on[k]) return; const pts=[];
+      for(let t=0;t<=10;t+=.25){ const v=Math.max(0,Math.min(100,se[key](t))); pts.push(`${x0+t/10*w},${y0-v/100*hh}`); }
+      s+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${se.c}" stroke-width="${k==='none'?3.5:2.5}" ${k==='levo'?'stroke-dasharray="7 5"':''} stroke-linejoin="round"/>`;
+      leg.push(`<span style="--c:${se.c}">${se.lab}</span>`); });
+    svg.innerHTML=s; svg.parentElement.querySelector('.legend')?.remove(); svg.insertAdjacentHTML('afterend',`<div class="legend">${leg.join('')}</div>`);
+  }
+  const upd=()=>{ on.none=$('#tn',f).checked; on.levo=$('#tl',f).checked; on.dmt=$('#td',f).checked; store.set('dm',on); chart('#g1','mv','Movement (% of normal)'); chart('#g2','ag','Aggregation (relative)'); };
+  f.querySelectorAll('input').forEach(i=>i.onchange=upd); upd(); return f;
+}
+
+/* ---------- Step 7 ---------- */
+const QZ=[
+  {q:'Why is Parkinson’s disease usually diagnosed late?',o:['The seed test is only done in old age','Movement signs appear only after 50–70% of dopamine neurons are lost','Clumping only starts once symptoms begin'],a:1,e:'The pathology starts years earlier; the brain compensates until most neurons are gone.'},
+  {q:'Are α-synuclein seeds good or bad?',o:['Good: they protect neurons','Bad in the brain, but useful in the test because they make themselves visible by growing','Neither: they have no effect'],a:1,e:'Seeds spread the disease. The test exploits their ability to convert normal protein so they grow to a measurable size.'},
+  {q:'What does ThT do in the assay?',o:['Breaks up fibrils','Glows when it binds fibrils, so the signal tracks fibril formation','Kills dopamine neurons'],a:1,e:'ThT is the read-out: RFU rises with the amount of fibril.'},
+  {q:'B reads 75,000 RFU and C reads 250,000 RFU. What can you conclude?',o:['C has more advanced disease','Both are positive; severity comes from the clinical picture','B is negative'],a:1,e:'Both are above the 50,000 cut-off. The test is yes/no for seeds, not a severity score.'},
+  {q:'Why run a blank and controls on every plate?',o:['To show background and prove the assay can tell positive from negative','To make the numbers bigger','Because the blank contains seeds'],a:0,e:'Without working controls, a patient result can’t be trusted.'},
+  {q:'Drug Z barely changes the aggregation signal. Why does it still help?',o:['It inhibits aggregation','It replaces dopamine, so movement improves','It removes the seeds'],a:1,e:'Levodopa becomes dopamine. It improves symptoms but doesn’t slow clumping or neuron loss.'},
+  {q:'A new drug lowers the aggregation biomarker. Is it disease-modifying?',o:['Yes, the biomarker proves it','Not yet: trials must show slower progression','No, biomarkers are irrelevant'],a:1,e:'Biomarker change shows target engagement. Disease modification needs clinical outcome evidence.'},
+];
+function quiz(){
+  const st=store.get('quiz',{}), score=QZ.reduce((a,q,i)=>a+(st[i]===q.a?1:0),0), left=QZ.length-Object.keys(st).length;
+  const f=shell('quiz','Check yourself',
+    `<div class="box soft"><div class="score">${score}<span class="muted" style="font:500 16px var(--body)"> / ${QZ.length}</span></div><p class="note" style="margin-top:6px">${left?`${left} to go`:'All answered'}</p>
+      <div class="row" style="margin-top:10px"><button class="btn ghost" type="button" id="qr">Clear answers</button></div></div>
+     <div class="key"><b>Take-home:</b> the biomarker tells you about the pathology; the patient tells you about the disease.</div>`,
+    `<div class="g3" id="qz"></div>`);
+  const qz=$('#qz',f);
+  QZ.forEach((q,i)=>{ const b=document.createElement('div'); b.className='box q'; b.innerHTML=`<p>${i+1}. ${q.q}</p><div class="opts"></div>`;
+    const oc=b.querySelector('.opts');
+    q.o.forEach((o,j)=>{ const x=document.createElement('button'); x.type='button'; x.className='opt'; x.textContent=o;
+      if(st[i]!==undefined){ if(j===q.a) x.classList.add('right'); else if(j===st[i]) x.classList.add('wrong'); }
+      x.onclick=()=>{ st[i]=j; store.set('quiz',st); const y=scrollY; rerender(); scrollTo(0,y); }; oc.appendChild(x); });
+    if(st[i]!==undefined) b.insertAdjacentHTML('beforeend',`<div class="fb">${st[i]===q.a?'✓ ':'Not quite. '}${q.e}</div>`);
+    qz.appendChild(b); });
+  $('#qr',f).onclick=()=>{ store.set('quiz',{}); rerender(); };
+  return f;
+}
+
+renderTabs(); renderStep();
+})();
+</script>
+
+</body>
+</html>
